@@ -3,6 +3,7 @@ console.log('hi')
 require('dotenv').config()
 
 const token = process.env.TOKEN;
+let guild = "908150487902212096";
 
 const commands = [
   {
@@ -16,13 +17,29 @@ const commands = [
   },
   {
     prefix: "verify",
-    perms: 0,
+    perm: 0,
     file: './cmds/verify.js',
     parameters: [{
       type: "string",
       name: "link",
       optional: false
     }]
+  },
+    {
+    prefix: "debug",
+    perm: 4,
+    file: './cmds/debugVerify.js',
+    parameters: [{
+      type: "string",
+      name: "level",
+      optional: false
+    }]
+  },
+      {
+    prefix: "roles",
+    perm: 0,
+    file: './cmds/roles.js',
+    parameters: []
   }
   ]
   
@@ -33,7 +50,8 @@ const commands = [
   }
   
   let perms = {
-    "748576224435109899":4
+    "748576224435109899":4,
+    "463591048871018496":4
   }
   let Canvas;
   
@@ -51,13 +69,23 @@ const commands = [
       let module = runCmds[path] || require(path);
       if (!runCmds[path]) {
         runCmds[path] = module;
-        module.init(client);
+        module.init(client,Roles);
       }
       module.run(msg,param);
     }
-    
+    const Roles = {};
     client.on('ready', async () => {
       console.log(`${client.user.username} is ready!`);
+      let server = await client.guilds.fetch(guild);
+      let roles = await server.roles.fetch();
+      roles.forEach(r => {
+        if (r.name.startsWith("Level ")) {
+          let lvl = r.name.split("Level ")[1]-0;
+          if (lvl == lvl) {
+            Roles[lvl] = r;
+          }
+        }
+      })
     })
     
     let db = false;
@@ -87,7 +115,7 @@ const commands = [
           });
         }else{
           // Other commands
-          if (msg.content == "get to sleep" && msg.author.id == "748576224435109899") {
+          if (msg.content == "get to sleep" && perms[msg.author.id] == 4) {
             await msg.reply("zzzz");
             process.exit();
             return; 
@@ -98,14 +126,14 @@ const commands = [
               let param = (msg.content.split(prefix+" "+i.prefix+ ' ')[1] || '').split(" ");
               let perm = perms[msg.author.id] || 0;
               let required = i.perm || 0;
-              if (perm => required) {
+              if (perm >= required) {
                 runCmd(i.file,msg,param);
               } else {
                 msg.reply({
                   embeds: [
                     {
                       title: "Insufficient permissions",
-                      description: `You require level ${required} permissions, you have ${perms}`
+                      description: `You require level ${required} permissions, you have ${perm}`
                     }
                     ]
                 });

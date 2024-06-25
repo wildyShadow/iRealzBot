@@ -49,11 +49,11 @@ new Promise(async (r,f) => {
        bot.ws.close();
        f(0);
      }
-   }
    }else{
      msg.channel.send("Error: This room was already verified once or someone else has joined.");
      bot.ws.close();
      f(1);
+   }
    }
  });
 }).catch(r => {
@@ -68,7 +68,7 @@ new Promise(async (r,f) => {
      highestRole = x;
    }
   }
-  msg.channel.send("Got info!\nplayer: "+host.name+"\nlevel: "+host.lvl+highestRole > -1? `\nRole added: ${info.roles[highestRole].name}` : '');
+  msg.channel.send("Got info!\nplayer: "+host.name+"\nlevel: "+host.lvl+(highestRole > -1? (`\nRole added: ${info.roles[highestRole].name}` ): ''));
   if (highestRole > -1 && msg.guild) {
     msg.member.roles.add(info.roles[highestRole]);
   }
