@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@wildyshadow/hitbot": "^1.0.6",
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5"
+  }
+}
