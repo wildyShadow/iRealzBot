@@ -62,7 +62,7 @@ new Promise(async (r,f) => {
 })
 }).then(host => {
   let highestRole = -1;
-  for (let i in info.roles) {
+  for (let i of info.roles) {
    let x = i-0;
    if (x <= host.lvl && x > highestRole) {
      highestRole = x;
