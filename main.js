@@ -1,9 +1,10 @@
+let Canvas; //= require("./node_modules/@napi-rs/canvas");
 console.log('hi')
 
 require('dotenv').config()
 
 const token = process.env.TOKEN;
-let guild = "908150487902212096";
+let guild = "1120491494541897728";
 
 const commands = [
   {
@@ -25,6 +26,17 @@ const commands = [
       optional: false
     }]
   },
+  {
+    prefix: "levelrequirement",
+    perm: 0,
+    file: "./cmds/Rounds.js",
+    parameters: [
+      {
+        type: "number",
+        name: "level"
+      }
+      ]
+  },
     {
     prefix: "debug",
     perm: 4,
@@ -34,6 +46,38 @@ const commands = [
       name: "level",
       optional: false
     }]
+  },
+      {
+    prefix: "iscreator",
+    perm: 0,
+    file: './cmds/mapmaker.js',
+    parameters: [{
+      type: "string",
+      name: "playerName",
+      optional: false
+    }]
+  },
+      {
+    prefix: "news",
+    perm: 0,
+    file: './cmds/news.js',
+    parameters: []
+  },
+      {
+    prefix: "bridge",
+    perm: 0,
+    file: './cmds/bridge.js',
+    parameters: [{
+      type: "string",
+      name: "link",
+      optional: false
+    }]
+  },
+        {
+    prefix: "creatorrank",
+    perm: 0,
+    file: './cmds/maps.js',
+    parameters: []
   },
       {
     prefix: "roles",
@@ -53,7 +97,6 @@ const commands = [
     "748576224435109899":4,
     "463591048871018496":4
   }
-  let Canvas;
   
   const { Client, RichPresence,GatewayIntentBits } = require('./node_modules/discord.js');
   const client = new Client({intents: [
