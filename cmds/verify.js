@@ -70,7 +70,12 @@ new Promise(async (r,f) => {
   }
   msg.channel.send("Got info!\nplayer: "+host.name+"\nlevel: "+host.lvl+(highestRole > -1? (`\nRole added: ${info.roles[highestRole].name}` ): ''));
   if (highestRole > -1 && msg.guild) {
+    let role = info.roles[highestRole];
+    if (msg.channel.guild.members.me.roles.highest.position > role.position) {
     msg.member.roles.add(info.roles[highestRole]);
+    }else{
+      msg.channel.send("Cant add roles to user, are the roles under mine?");
+    }
   }
 }).catch((tyl) => {
   if (tyl == 0) {
