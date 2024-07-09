@@ -1,124 +1,124 @@
-let Canvas; //= require("./node_modules/@napi-rs/canvas");
+//let Canvas; //= require("./node_modules/@napi-rs/canvas");
+
+const Canvas = require("/data/data/com.termux/files/usr/lib/node_modules/canvas");
+
+const fs = require("fs");
+
 console.log('hi')
 
 require('dotenv').config()
 
 const token = process.env.TOKEN;
 let guild = "1120491494541897728";
+const pako = require("/data/data/com.termux/files/usr/lib/node_modules/pako");
 
-const commands = [
-  {
-    prefix: "love",
-    parameters: [{
-      type: "string",
-      name: "name",
-      optional: false
-    }],
-    file: "./cmds/love.js"
-  },
-  {
-    prefix: "verify",
-    perm: 0,
-    file: './cmds/verify.js',
-    parameters: [{
-      type: "string",
-      name: "link",
-      optional: false
-    }]
-  },
-  {
-    prefix: "levelrequirement",
-    perm: 0,
-    file: "./cmds/Rounds.js",
-    parameters: [
-      {
-        type: "number",
-        name: "level"
+function integerToRGB(rgbInteger) {
+  // Extract RGB components
+  var red = (rgbInteger >> 16) & 0xFF;
+  var green = (rgbInteger >> 8) & 0xFF;
+  var blue = rgbInteger & 0xFF;
+  
+  return { r: red, g: green, b: blue };
+}
+
+function decodeString(encodedString){
+  let decompressed = Buffer.from(decodeURIComponent(encodedString),"base64");
+  let inflated = pako.inflate(decompressed, {
+    'to': "string"
+  });
+  let decoded = JSON.parse(inflated);
+  return decoded;
+}
+
+const commands = require("./cmds.json");
+
+const {mapToCanvas} = require("./canvasUtils.js");
+
+const wait = async (delay) => { 
+  return new Promise((r) => {
+    setTimeout(r,delay)
+  });
+}
+
+let perms = {
+  "748576224435109899":4,
+  "463591048871018496":4
+}
+
+const { Client, RichPresence,GatewayIntentBits,Partials} = require('./node_modules/discord.js');
+
+const client = new Client({intents: [
+  GatewayIntentBits.Guilds,
+  GatewayIntentBits.GuildMessages,
+  GatewayIntentBits.MessageContent,
+  GatewayIntentBits.GuildMembers,
+  GatewayIntentBits.GuildMessageReactions
+  ],partials: [Partials.User,Partials.Message]});
+  
+  const runCmds = {};
+  let runCmd;
+  runCmd = (path,msg,param) => {
+    let module = runCmds[path] || require(path);
+    if (!runCmds[path]) {
+      runCmds[path] = module;
+      module.init(client,Roles,Canvas,mapToCanvas,runCmd);
+    }
+    module.run(msg,param);
+  }
+  
+  const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+  
+  let statuses = [
+    async () => {
+      return {
+        activities: [{
+          name: "Fortnite",
+          type: "Playing"
+        }]
       }
-      ]
-  },
-    {
-    prefix: "debug",
-    perm: 4,
-    file: './cmds/debugVerify.js',
-    parameters: [{
-      type: "string",
-      name: "level",
-      optional: false
-    }]
-  },
-      {
-    prefix: "iscreator",
-    perm: 0,
-    file: './cmds/mapmaker.js',
-    parameters: [{
-      type: "string",
-      name: "playerName",
-      optional: false
-    }]
-  },
-      {
-    prefix: "news",
-    perm: 0,
-    file: './cmds/news.js',
-    parameters: []
-  },
-      {
-    prefix: "bridge",
-    perm: 0,
-    file: './cmds/bridge.js',
-    parameters: [{
-      type: "string",
-      name: "link",
-      optional: false
-    }]
-  },
-        {
-    prefix: "creatorrank",
-    perm: 0,
-    file: './cmds/maps.js',
-    parameters: []
-  },
-      {
-    prefix: "roles",
-    perm: 0,
-    file: './cmds/roles.js',
-    parameters: []
-  }
-  ]
-  
-  const wait = async (delay) => { 
-    return new Promise((r) => {
-      setTimeout(r,delay)
-    });
-  }
-  
-  let perms = {
-    "748576224435109899":4,
-    "463591048871018496":4
-  }
-  
-  const { Client, RichPresence,GatewayIntentBits } = require('./node_modules/discord.js');
-  const client = new Client({intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers,
-    ],});
-    
-    const runCmds = {};
-    
-    function runCmd(path,msg,param) {
-      let module = runCmds[path] || require(path);
-      if (!runCmds[path]) {
-        runCmds[path] = module;
-        module.init(client,Roles);
+    },
+    async () => {
+      let r = await fetch("https://hitbox.io/scripts/playercount.json");
+      r = await r.json();
+      return {
+        activities: [{
+          name: "hitbox.io with "+r.counts.total+" other players",
+          type: "Playing"
+        }]
       }
-      module.run(msg,param);
+    },
+    async () => {
+      return {
+        activities: [{
+          name: "amogus",
+          type: "Playing"
+        }]
+      }
+    },
+    async () => {
+      return {
+        activities: [{
+          name: "In korea, people have two ages instead of one.",
+          type: "Playing"
+        }]
+      }
+    }
+    ]
+    
+    async function switchStatus() {
+      try {
+        let status = await statuses[Math.floor(Math.random()*statuses.length)]();
+        client.user.setPresence(status);
+      }catch(err){
+        
+      }
     }
     const Roles = {};
     client.on('ready', async () => {
       console.log(`${client.user.username} is ready!`);
+      require("./register.js")(commands,guild,process.env.CLIENT,token);
+      switchStatus();
+      setInterval(switchStatus,30000);
       let server = await client.guilds.fetch(guild);
       let roles = await server.roles.fetch();
       roles.forEach(r => {
@@ -199,4 +199,49 @@ const commands = [
       }
     })
     
+    client.on('messageReactionAdd', async(reaction_orig, user) => {
+      const message = !reaction_orig.message.author
+      ? await reaction_orig.message.fetch()
+      : reaction_orig.message;
+      if (message.author.id === client.user.id && reaction_orig.emoji.name == "❌") {
+        message.delete();
+      }
+    });
+    
+    client.on("interactionCreate", async interaction => {
+      if (!interaction.isChatInputCommand()) return;
+      interaction.author = interaction.user;
+      interaction.author.member = interaction.member;
+      interaction.mentions = {users: {
+        first: () => undefined
+      }};
+      for (let i of commands) {
+        if (i.prefix == interaction.commandName) {
+          let param = [];
+          for (let pn of i.parameters) {
+            let parameter = interaction.options.getString(pn.name) ?? undefined;
+            if (parameter) {
+              param.push(parameter);
+            }
+          }
+          let perm = perms[interaction.user.id] || 0;
+          let required = i.perm || 0;
+          if (perm >= required) {
+            await interaction.reply({content:"running",ephemeral: true});
+            await runCmd(i.file,interaction,param)
+            break;
+          }else{
+            await interaction.reply({content:"requires permission",ephemeral: true});
+          }
+        }
+      }
+    });
+    
     client.login(token);
+    
+    const renew = require("./renewplayers.js");
+    renew();
+    setInterval(() => {
+      console.log("renewing players");
+      renew();
+    },700000);
