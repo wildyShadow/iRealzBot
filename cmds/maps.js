@@ -24,23 +24,25 @@ self.run = async (msg,param) => {
     data[i].name = i;
     arr.push(data[i]);
   }
+
   arr.sort((a,b) => (b.likes)-(a.likes));
   let txt = "Rank   Player  Likes/Dislikes/Maps\n";
   for (let x in arr) {
     if (x > 20) {
       break;
     }
-   let y = arr[x]
-    txt += x+". "+y.name+": "+y.likes+"/"+y.dislikes+"/"+y.maps+"\n";
-    }
-    msg.channel.send({
-      embeds: [
-        {
-          title: "Map creator Leaderboard",
-          description: txt
-        }
-        ]
-    })
+    let y = arr[x]
+    let rank = (x-0)+1;
+    txt += rank+". "+y.name+": "+y.likes+"/"+y.dislikes+"/"+y.maps+"\n";
+  }
+  msg.channel.send({
+    embeds: [
+      {
+        title: "Map creator Leaderboard",
+        description: txt
+      }
+      ]
+  })
 }
 
 module.exports = self;

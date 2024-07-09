@@ -3,6 +3,9 @@ let info = {};
 
 const hitbot = require("../node_modules/@wildyshadow/hitbot");
 
+const fs = require("fs");
+
+let data = fs.readFileSync(__dirname+"/users.json",{ encoding: 'utf8', flag: 'r' });
 
 const wait = async (delay) => { 
     return new Promise((r) => {
@@ -69,6 +72,14 @@ new Promise(async (r,f) => {
    }
   }
   msg.channel.send("Got info!\nplayer: "+host.name+"\nlevel: "+host.lvl+(highestRole > -1? (`\nRole added: ${info.roles[highestRole].name}` ): ''));
+  let dt = JSON.parse(data);
+  dt[msg.author.id] = {
+    color: host.color,
+    name: host.name,
+    level: host.lvl
+  };
+  data = JSON.stringify(dt);
+  fs.writeFileSync(__dirname+"/users.json",data);
   if (highestRole > -1 && msg.guild) {
     let role = info.roles[highestRole];
     if (msg.channel.guild.members.me.roles.highest.position > role.position) {

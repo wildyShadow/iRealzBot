@@ -46,6 +46,7 @@ self.run = async (msg,param) => {
   let lastMsg = false;
   if (lastWs) {
     msg.channel.send("There is already a existing bridge.");
+    return;
   }
   db = true;
   const bot = new hitbot({
